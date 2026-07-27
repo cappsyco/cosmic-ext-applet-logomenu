@@ -128,8 +128,11 @@ impl Application for LogoMenu {
                 MenuItemType::LaunchAction => {
                     let command = item.command().unwrap_or_default();
                     let label = item.label().unwrap_or_default();
+
+                    // Fetch the appropriate icon (system, flatpak, or fallback)
                     let icon_name = get_icon_for_action(&command);
 
+                    // Build the button content with icon and text side-by-side
                     let action_content = widget::row([])
                         .push(cosmic::widget::icon::from_name(icon_name).size(16))
                         .push(widget::text::body(label))
@@ -142,7 +145,8 @@ impl Application for LogoMenu {
                 MenuItemType::PowerAction => {
                     let command = item.command().unwrap_or_default();
                     let label = item.label().unwrap_or_default();
-
+                    
+                    // Map power actions to standard FreeDesktop symbolic icons
                     let icon_name = match command.as_str() {
                         "Lock" => "system-lock-screen-symbolic",
                         "Logout" => "system-log-out-symbolic",
@@ -152,6 +156,7 @@ impl Application for LogoMenu {
                         _ => "system-shutdown-symbolic",
                     };
 
+                    // Build the button content with icon and text side-by-side
                     let action_content = widget::row([])
                         .push(cosmic::widget::icon::from_name(icon_name).size(16))
                         .push(widget::text::body(label))
@@ -318,7 +323,7 @@ fn is_nixos() -> bool {
 fn get_icon_for_action(command: &str) -> &str {
     let cmd = command.to_lowercase();
 
-    // 1. Ecossistema COSMIC & Padrões FreeDesktop
+    // 1. COSMIC Ecosystem & FreeDesktop Standards
     if cmd.contains("logomenu-settings") {
         return "preferences-other-symbolic";
     } else if cmd.contains("cosmic-launcher") {
@@ -337,14 +342,14 @@ fn get_icon_for_action(command: &str) -> &str {
         return "system-software-install-symbolic";
     }
 
-    // 2. Extração para Flatpaks (Alta taxa de sucesso de achar o ícone colorido oficial)
+    // 2. Flatpak Extraction (High success rate for fetching official colorful app icons)
     if command.starts_with("flatpak run ") {
         if let Some(app_id) = command.split_whitespace().nth(2) {
             return app_id;
         }
     }
 
-    // 3. Fallback Absoluto e Garantido
-    // Qualquer script customizado ou comando desconhecido receberá este ícone.
+    // 3. Absolute Fallback
+    // Custom scripts or unknown commands will receive a generic execution icon.
     "system-run-symbolic"
 }
